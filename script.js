@@ -6,7 +6,7 @@ const memoryVideo=document.getElementById("memoryVideo")
 const photo1=document.getElementById("photo1")
 const photo2=document.getElementById("photo2")
 
-const startDate=new Date(2024,12,21,0,0,0)
+const startDate=new Date(2024,11,21,0,0,0)
 
 const photoPool=[
   "photos/p1.JPG","photos/p2.JPG","photos/p3.JPG","photos/p4.JPG","photos/p5.JPG",
@@ -27,29 +27,29 @@ function setPhotos(){
 shuffleBtn.onclick=()=>{setPhotos();burst(28)}
 setPhotos()
 
-let current=null
+let videoIndex=0
 
-function loadVideo(src,auto){
-  current=src
+function loadVideoAt(i,auto){
+  videoIndex=((i%videoPool.length)+videoPool.length)%videoPool.length
   memoryVideo.pause()
-  memoryVideo.src=src
+  memoryVideo.src=videoPool[videoIndex]
   playPauseBtn.textContent="Play"
   if(auto)memoryVideo.play().then(()=>playPauseBtn.textContent="Pause").catch(()=>{})
 }
 
-function shuffleVideo(){
-  let v=r(videoPool)
-  while(v===current)v=r(videoPool)
-  loadVideo(v,true)
+function nextVideo(auto){
+  loadVideoAt(videoIndex+1,auto)
 }
 
-shuffleVideoBtn.onclick=()=>{shuffleVideo();burst(28)}
+shuffleVideoBtn.onclick=()=>{nextVideo(true);burst(28)}
 
 playPauseBtn.onclick=async()=>{
-  if(!memoryVideo.src)shuffleVideo()
+  if(!memoryVideo.src)loadVideoAt(videoIndex,true)
   if(memoryVideo.paused){await memoryVideo.play();playPauseBtn.textContent="Pause"}
   else{memoryVideo.pause();playPauseBtn.textContent="Play"}
 }
+
+memoryVideo.addEventListener("ended",()=>nextVideo(true))
 
 videosBtn.onclick=()=>document.getElementById("videos").scrollIntoView({behavior:"smooth"})
 
@@ -93,3 +93,5 @@ function burst(n){
     setTimeout(()=>s.remove(),900)
   }
 }
+
+loadVideoAt(0,false)
